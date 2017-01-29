@@ -1,5 +1,6 @@
 import requests
 import random
+from collections import OrderedDict
 import re
 from lxml import etree
 from bs4 import BeautifulSoup
@@ -52,10 +53,10 @@ def get_course_info(course_slug):
                    'duration': get_duration(html, soup),
                    'language': get_language(html, soup),
                    'avr_star': get_avr_star(html, soup)}
-    return course_info
+    return OrderedDict(sorted(course_info.items(), key=lambda t: t[0]))
 
 
-def write_to_xlsx(sheet, courses_info):
+def write_to_sheet(sheet, courses_info):
     for x, course_info in enumerate(courses_info, start=1):
         for y, info in enumerate(course_info, start=1):
             sheet.cell(row=x, column=y, value=info)
@@ -64,9 +65,7 @@ def write_to_xlsx(sheet, courses_info):
 def output_courses_info_to_xlsx(filepath, courses_info):
     wb = Workbook()
     sheet = wb.create_sheet(title='Coursera')
-
-    write_to_xlsx(sheet, courses_info)
-    
+    write_to_sheet(sheet, courses_info)
     wb.save(filename=filepath)
 
 
