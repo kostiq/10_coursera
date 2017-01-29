@@ -21,8 +21,6 @@ def get_title(html, soup):
 def get_start_date(html, soup):
     if soup.find('div', {'class': re.compile('startdate')}):
         return soup.find('div', {'class': re.compile('startdate')}).text
-    else:
-        return None
 
 
 def get_duration(html, soup):
@@ -32,16 +30,12 @@ def get_duration(html, soup):
         duration = class_list[0].text
     elif re.search('\d+-\d+', class_list[1].text):
         duration = class_list[1].text
-    else:
-        duration = None
     return duration
 
 
 def get_avr_star(html, soup):
     if soup.find('div', {'class': re.compile('ratings-text')}):
         return soup.find('div', {'class': re.compile('ratings-text')}).text
-    else:
-        return None
 
 
 def get_language(html, soup):
@@ -52,23 +46,27 @@ def get_course_info(course_slug):
     course_info = []
     html = requests.get(course_slug).content
     soup = BeautifulSoup(html, 'html.parser')
-    course_info = [course_slug,
-                   get_title(html, soup),
-                   get_start_date(html, soup),
-                   get_duration(html, soup),
-                   get_language(html, soup),
-                   get_avr_star(html, soup)]
+    course_info = {'link': course_slug,
+                   'title': get_title(html, soup),
+                   'start_date': get_start_date(html, soup),
+                   'duration': get_duration(html, soup),
+                   'language': get_language(html, soup),
+                   'avr_star': get_avr_star(html, soup)}
     return course_info
+
+
+def write_to_xlsx(sheet, courses_info):
+    for x, course_info in enumerate(courses_info, start=1):
+        for y, info in enumerate(course_info, start=1):
+            sheet.cell(row=x, column=y, value=info)
 
 
 def output_courses_info_to_xlsx(filepath, courses_info):
     wb = Workbook()
-    sheet1 = wb.create_sheet(title='Coursera')
+    sheet = wb.create_sheet(title='Coursera')
 
-    for x, course_info in enumerate(courses_info, start=1):
-        for y, info in enumerate(course_info, start=1):
-            sheet1.cell(row=x, column=y, value=info)
-
+    write_to_xlsx(sheet, courses_info)
+    
     wb.save(filename=filepath)
 
 
