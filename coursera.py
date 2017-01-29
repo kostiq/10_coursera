@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from openpyxl import Workbook
 
 
-def get_courses_list(count=20):
+def get_list_of_random_courses(count=20):
     courses_xml = requests.get(
         'https://www.coursera.org/sitemap~www~courses.xml').content
     tree = etree.fromstring(courses_xml)
@@ -22,7 +22,7 @@ def get_start_date(html, soup):
     if soup.find('div', {'class': re.compile('startdate')}):
         return soup.find('div', {'class': re.compile('startdate')}).text
     else:
-        return 'No info about startdate'
+        return None
 
 
 def get_duration(html, soup):
@@ -33,7 +33,7 @@ def get_duration(html, soup):
     elif re.search('\d+-\d+', class_list[1].text):
         duration = class_list[1].text
     else:
-        duration = 'No info about duration'
+        duration = None
     return duration
 
 
@@ -41,7 +41,7 @@ def get_avr_star(html, soup):
     if soup.find('div', {'class': re.compile('ratings-text')}):
         return soup.find('div', {'class': re.compile('ratings-text')}).text
     else:
-        return 'No info about avr rating'
+        return None
 
 
 def get_language(html, soup):
@@ -65,15 +65,15 @@ def output_courses_info_to_xlsx(filepath, courses_info):
     wb = Workbook()
     sheet1 = wb.create_sheet(title='Coursera')
 
-    for x, course_info in enumerate(courses_info):
-        for y, info in enumerate(course_info):
-            sheet1.cell(row=x+1, column=y+1, value=info)
+    for x, course_info in enumerate(courses_info, start=1):
+        for y, info in enumerate(course_info, start=1):
+            sheet1.cell(row=x, column=y, value=info)
 
     wb.save(filename=filepath)
 
 
 if __name__ == '__main__':
     overall_info = []
-    for link in get_courses_list():
+    for link in get_list_of_random_courses():
         overall_info.append(get_course_info(link))
     output_courses_info_to_xlsx('info.xlsx', overall_info)
