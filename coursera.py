@@ -47,19 +47,20 @@ def get_course_info(course_slug):
     course_info = []
     html = requests.get(course_slug).content
     soup = BeautifulSoup(html, 'html.parser')
-    course_info = {'link': course_slug,
-                   'title': get_title(html, soup),
-                   'start_date': get_start_date(html, soup),
-                   'duration': get_duration(html, soup),
-                   'language': get_language(html, soup),
-                   'avr_star': get_avr_star(html, soup)}
-    return OrderedDict(sorted(course_info.items(), key=lambda t: t[0]))
+    course_info = [('link', course_slug),
+                   ('title', get_title(html, soup)),
+                   ('start_date', get_start_date(html, soup)),
+                   ('duration', get_duration(html, soup)),
+                   ('language', get_language(html, soup)),
+                   ('avr_star', get_avr_star(html, soup))]
+
+    return OrderedDict(course_info)
 
 
 def write_to_sheet(sheet, courses_info):
     for x, course_info in enumerate(courses_info, start=1):
         for y, info in enumerate(course_info, start=1):
-            sheet.cell(row=x, column=y, value=info)
+            sheet.cell(row=x, column=y, value=course_info[info])
 
 
 def output_courses_info_to_xlsx(filepath, courses_info):
