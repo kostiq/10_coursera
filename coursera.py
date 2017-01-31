@@ -8,8 +8,7 @@ from openpyxl import Workbook
 
 
 def get_list_of_random_courses(count=20):
-    courses_xml = requests.get(
-        'https://www.coursera.org/sitemap~www~courses.xml').content
+    courses_xml = requests.get('https://www.coursera.org/sitemap~www~courses.xml').content
     tree = etree.fromstring(courses_xml)
     courses_list = [link.find('{*}loc').text for link in tree]
     return random.sample(courses_list, count)
@@ -47,20 +46,20 @@ def get_course_info(course_slug):
     course_info = []
     html = requests.get(course_slug).content
     soup = BeautifulSoup(html, 'html.parser')
-    course_info = [('link', course_slug),
-                   ('title', get_title(html, soup)),
-                   ('start_date', get_start_date(html, soup)),
-                   ('duration', get_duration(html, soup)),
-                   ('language', get_language(html, soup)),
-                   ('avr_star', get_avr_star(html, soup))]
+    course_info = {'1': ('link', course_slug),
+                   '2': ('title', get_title(html, soup)),
+                   '3': ('start_date', get_start_date(html, soup)),
+                   '4': ('duration', get_duration(html, soup)),
+                   '5': ('language', get_language(html, soup)),
+                   '6': ('avr_star', get_avr_star(html, soup))}
 
-    return OrderedDict(course_info)
+    return course_info
 
 
 def write_to_sheet(sheet, courses_info):
     for x, course_info in enumerate(courses_info, start=1):
         for y, info in enumerate(course_info, start=1):
-            sheet.cell(row=x, column=y, value=course_info[info])
+            sheet.cell(row=x, column=y, value=course_info[y][1])
 
 
 def output_courses_info_to_xlsx(filepath, courses_info):
