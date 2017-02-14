@@ -8,7 +8,8 @@ from openpyxl import Workbook
 
 
 def get_list_of_random_courses(count=20):
-    courses_xml = requests.get('https://www.coursera.org/sitemap~www~courses.xml').content
+    courses_xml = requests.get(
+        'https://www.coursera.org/sitemap~www~courses.xml').content
     tree = etree.fromstring(courses_xml)
     courses_list = [link.find('{*}loc').text for link in tree]
     return random.sample(courses_list, count)
@@ -46,12 +47,13 @@ def get_course_info(course_slug):
     course_info = []
     html = requests.get(course_slug).content
     soup = BeautifulSoup(html, 'html.parser')
-    course_info = {'1': ('link', course_slug),
-                   '2': ('title', get_title(html, soup)),
-                   '3': ('start_date', get_start_date(html, soup)),
-                   '4': ('duration', get_duration(html, soup)),
-                   '5': ('language', get_language(html, soup)),
-                   '6': ('avr_star', get_avr_star(html, soup))}
+    course_info = {1: ('link', course_slug),
+                   2: ('title', get_title(html, soup)),
+                   3: ('start_date', get_start_date(html, soup)),
+                   4: ('duration', get_duration(html, soup)),
+                   5: ('language', get_language(html, soup)),
+                   6: ('avr_star', get_avr_star(html, soup))
+                   }
 
     return course_info
 
@@ -70,7 +72,5 @@ def output_courses_info_to_xlsx(filepath, courses_info):
 
 
 if __name__ == '__main__':
-    overall_info = []
-    for link in get_list_of_random_courses():
-        overall_info.append(get_course_info(link))
-    output_courses_info_to_xlsx('info.xlsx', overall_info)
+    output_courses_info_to_xlsx(
+        'info.xlsx', [get_course_info(link) for link in get_list_of_random_courses()])
